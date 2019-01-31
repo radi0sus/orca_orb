@@ -175,7 +175,7 @@ if loewdin_last is False:
 if ops.path.isfile(args.filename+'.csv') == True:
     print('\nFound '+args.filename+'.csv in folder.')
     if args.newcsv !=0:
-        print('\n-csv option active. Building new '+args.filename+'.csv.')
+        print('\n-ncsv option active. Building new '+args.filename+'.csv.')
     if args.newcsv == 0:
         oall=pd.read_csv(args.filename+'.csv')
         old_csv=1
@@ -537,3 +537,4 @@ plt.yticks(rotation=0)
 fig.tight_layout()
 fig.savefig('a-cntrb-a.png',dpi=300)
 plt.close(fig)
+
