@@ -234,7 +234,7 @@ if old_csv == 0:
     oall.insert(loc=6,column='orb_red',value=oall.apply(lambda row: row.orbital[0],axis=1))
 
 # write data frame as csv file to hd
-if ops.path.isfile(args.filename+'.csv') == False or args.csv !=0:
+if ops.path.isfile(args.filename+'.csv') == False or args.newcsv !=0:
     oall.to_csv(args.filename+'.csv')
     print('Data frame saved to disk as '+args.filename+'.csv\n')
 
@@ -527,4 +527,3 @@ plt.yticks(rotation=0)
 fig.tight_layout()
 fig.savefig('a-cntrb-a.png',dpi=300)
 plt.close(fig)
-
