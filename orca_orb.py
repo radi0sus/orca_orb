@@ -426,20 +426,25 @@ if spin==1:
     ax.set_xlabel('Element contribution (%)')
     ax.set_ylabel('(Orbital No., Occupation)')
     # reduce some labels in large plots
-    if len(sum_by_el_plot_a) > 30:
+    if len(sum_by_el_plot_b) > 30:
         ax.set_yticklabels([t if not i%2 else "" for i,t in enumerate(ax.get_yticklabels())])
     if len(sum_by_el_plot_b) > 50:
-        ax.set_yticklabels([t if not i%5 else "" for i,t in enumerate(ax.get_yticklabels())])
+        ax.set_yticklabels([t if not i%4 else "" for i,t in enumerate(ax.get_yticklabels())])
     fig = ax.get_figure()
     # for very large plots of element contributions
     if len(sum_by_el_plot_a) > 100:
        w, h=fig.get_size_inches()
        h = len(sum_by_el_plot_a)/10+1
        fig.set_size_inches(1.5*h, h)
+       for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] +
+             ax.get_xticklabels() + ax.get_yticklabels()):
+        item.set_fontsize(20)
+        ax.legend(sum_by_el_plot_a.columns.get_level_values(1),loc='upper left',fontsize=20)
+        
     plt.tight_layout()
     fig.savefig('el-cntrb-b.png',dpi=300)
     plt.close(fig)
-    
+
 # plot options for (alpha) orbitals start here:
 ax=sum_by_el_plot_a.plot.barh(xlim=(0,100),stacked=True)
 ax.legend(sum_by_el_plot_a.columns.get_level_values(1),loc='upper left')
@@ -450,13 +455,18 @@ ax.set_ylabel('(Orbital No., Occupation)')
 if len(sum_by_el_plot_a) > 30:
     ax.set_yticklabels([t if not i%2 else "" for i,t in enumerate(ax.get_yticklabels())])
 if len(sum_by_el_plot_a) > 50:
-    ax.set_yticklabels([t if not i%5 else "" for i,t in enumerate(ax.get_yticklabels())])
+    ax.set_yticklabels([t if not i%4 else "" for i,t in enumerate(ax.get_yticklabels())])
 fig = ax.get_figure()
 # for very large plots of element contributions
 if len(sum_by_el_plot_a) > 100:
     w, h=fig.get_size_inches()
     h = len(sum_by_el_plot_a)/10+1
     fig.set_size_inches(1.5*h, h)
+    for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] +
+             ax.get_xticklabels() + ax.get_yticklabels()):
+        item.set_fontsize(20)
+    ax.legend(sum_by_el_plot_a.columns.get_level_values(1),loc='upper left',fontsize=20)
+    
 plt.tight_layout()
 fig.savefig('el-cntrb-a.png',dpi=300)
 plt.close(fig)
@@ -510,7 +520,7 @@ if spin == 1:
     fig.tight_layout()
     fig.savefig('a-cntrb-b.png',dpi=300)
     plt.close(fig)
-
+    
 # plot options for (alpha) orbitals start here:
 ax=sns.heatmap(data=sum_by_at_plot_a,cmap='hot',linecolor='black',
               annot=heatmap_ano,fmt='g',xticklabels=True,linewidths=0.5,cbar=False,annot_kws={"size": 4}) 
@@ -527,3 +537,4 @@ plt.yticks(rotation=0)
 fig.tight_layout()
 fig.savefig('a-cntrb-a.png',dpi=300)
 plt.close(fig)
+
