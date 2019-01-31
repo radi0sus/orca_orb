@@ -432,14 +432,14 @@ if spin==1:
         ax.set_yticklabels([t if not i%4 else "" for i,t in enumerate(ax.get_yticklabels())])
     fig = ax.get_figure()
     # for very large plots of element contributions
-    if len(sum_by_el_plot_a) > 100:
+    if len(sum_by_el_plot_b) > 100:
        w, h=fig.get_size_inches()
-       h = len(sum_by_el_plot_a)/10+1
+       h = len(sum_by_el_plot_b)/10+1
        fig.set_size_inches(1.5*h, h)
        for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] +
              ax.get_xticklabels() + ax.get_yticklabels()):
         item.set_fontsize(20)
-        ax.legend(sum_by_el_plot_a.columns.get_level_values(1),loc='upper left',fontsize=20)
+        ax.legend(sum_by_el_plot_b.columns.get_level_values(1),loc='upper left',fontsize=20)
         
     plt.tight_layout()
     fig.savefig('el-cntrb-b.png',dpi=300)
@@ -537,4 +537,3 @@ plt.yticks(rotation=0)
 fig.tight_layout()
 fig.savefig('a-cntrb-a.png',dpi=300)
 plt.close(fig)
-
