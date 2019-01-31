@@ -33,10 +33,15 @@ orbitals will be created.
 A range of orbitals can be defined with the '-o' (--orbitals) parameter. It should be noted that all
 orbitals from the ORCA output will be processed first and that the orbital selection is done in a
 second step.
+
 -If the -o parameter is not given or empty all orbitals will be analyzed and printed. 
+
 -o3            : processes orbital number 3
+
 -oh or oHOMO   : processes the HOMO
+
 -oh10          : processes all orbitals from HOMO-10 to HOMO+10
+
 -o0-10 or o0:10: processes all orbitals from 0 to 10
 
 In a first step all information listed under 'LOEWDIN REDUCED ORBITAL POPULATIONS PER MO' will be read,
