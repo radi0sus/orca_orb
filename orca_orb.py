@@ -478,14 +478,12 @@ if len(sum_by_at_a[(sum_by_at_a.Cntrb >= threshold)]) == 0:
     
 # plot of atom contributions in orbitals >= threshold
 sum_by_at_plot_a=sum_by_at_a[(sum_by_at_a.Cntrb >= threshold)].reset_index().drop(columns=['OrbitalEnergy'])
-sum_by_at_plot_a['AtomNo']=sum_by_at_plot_a.AtomNo.astype('str')
+# convert AtomNo to string with leading zero
+sum_by_at_plot_a['AtomNo']=sum_by_at_plot_a['AtomNo'].apply(lambda x: str(x).zfill(2))
 # join AtomNo Element to AtomNo-Element
 # otherwise sorting on x-axis is not nice
 sum_by_at_plot_a['Atom'] = sum_by_at_plot_a[['AtomNo','Element']].apply(lambda x: ' '.join(x), axis=1)
 sum_by_at_plot_a=sum_by_at_plot_a.drop(columns=['AtomNo','Element'])
-# get maximum length of AtomNo-Element string (amax) and add leading '0(0)' if AtomNo-Element is smaller
-amax=sum_by_at_plot_a['Atom'].str.len().max()
-sum_by_at_plot_a['Atom']=sum_by_at_plot_a['Atom'].str.rjust(amax,'0')
 # unstack table
 sum_by_at_plot_a=sum_by_at_plot_a.set_index(['OrbNo','Occupation','Atom']).unstack().fillna(0)
 # drop one index level
@@ -498,11 +496,9 @@ if spin == 1:
         exit()
     
     sum_by_at_plot_b=sum_by_at_b[(sum_by_at_b.Cntrb >= threshold)].reset_index().drop(columns=['OrbitalEnergy'])
-    sum_by_at_plot_b['AtomNo']=sum_by_at_plot_b.AtomNo.astype('str')
-    sum_by_at_plot_b['Atom'] = sum_by_at_plot_b[['AtomNo','Element']].apply(lambda x: ' '.join(x), axis=1)
+    sum_by_at_plot_b['AtomNo']=sum_by_at_plot_b['AtomNo'].apply(lambda x: str(x).zfill(2))
+    sum_by_at_plot_b['Atom']=sum_by_at_plot_b[['AtomNo','Element']].apply(lambda x: ' '.join(x), axis=1)
     sum_by_at_plot_b=sum_by_at_plot_b.drop(columns=['AtomNo','Element'])
-    amax=sum_by_at_plot_b['Atom'].str.len().max()
-    sum_by_at_plot_b['Atom']=sum_by_at_plot_b['Atom'].str.rjust(amax,'0')
     sum_by_at_plot_b=sum_by_at_plot_b.set_index(['OrbNo','Occupation','Atom']).unstack().fillna(0)
     sum_by_at_plot_b.columns=sum_by_at_plot_b.columns.droplevel()
     # plot options for beta orbitals start here:
