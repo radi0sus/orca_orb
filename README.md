@@ -1,3 +1,3 @@
 # orca_orb
 
-# Please check the source for instructions.
+Please check the source for instructions.
