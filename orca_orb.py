@@ -338,8 +338,17 @@ elif orbrange_homo.match(args.orbitals):
 else:
     print('Warning! Malformed parameter. Check your input. Quit\n')
     exit()
+    
+###############################################################################
+# get the constraints (from argparse) 
 
-if elm.match(args.constraints):
+if args.constraints == 'none':
+    
+        list_of_elements=oall['element'].unique()
+        list_of_atoms=oall['atom_no'].unique()
+        appl_constr='none'
+
+elif elm.match(args.constraints):
     
     if list(set(elm.findall(args.constraints)).intersection(oall['element'].unique())):
         list_of_elements=list(set(elm.findall(args.constraints)).intersection(oall['element'].unique()))
