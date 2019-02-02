@@ -12,7 +12,7 @@ Usage:
     
     (python) orca_orb.py -options ORCA.out
 
-Options are `-t, -o, -c, -ncsv` (see below).
+Options are `-t`, `-o`, `-c`, -`ncsv` (see below).
 
 
 Naming conventions
@@ -25,7 +25,7 @@ Naming conventions
   and/or AOs. 
 * The sum of all contributions of Atoms of the same Element is equal to the contribution of the respective 
   Element to the orbital.
-* If a contribution or a sum of contributions is lower than a certain Trehshold the contribution may
+* If a contribution or a sum of contributions is lower than a certain Threshold the contribution may
   not be included in the output of the program.
 * Constraints refer to a selection of analyzed Atom or Element contributions.
 
@@ -40,7 +40,7 @@ contributions to alpha and beta orbitals are listed separately. All contribution
 
 Threshold (-t, --threshold)
 ---------------------------
-To reduce the size of the output a threshold in '%' can be defined (-t or --threshold). Only
+To reduce the size of the output a threshold in '%' can be defined (`-t` or `--threshold`). Only
 (summarized) atom (including AOs) contributions higher or equal to the given threshold will
 be printed. The threshold is not valid for the first (two) tables (element contributions to orbitals)
 and the bar plot(s).
@@ -61,13 +61,22 @@ contributions. All contribution below the threshold or zero contributions are '0
 In case of spin unrestricted calculations respective plots for alpha (...-a.png) and beta (...-b.png) 
 orbitals will be created.
 
+The heat map `ao-cntrb-Element/Atom-a.png` shows the contribution (in %) of the atomic orbitals (s, p, d, f) 
+of a specific atom in a range of orbitals. The heat map will be created if the `-c` parameter is invoked with 
+a specific atom number or atom numbers, e.g. `-c0` or `-c0,1,2`.
+All contribution below the threshold or zero contributions are '0' or have a black color. A heat map
+for a selected atom might not be created if the contribution of the atom (or the respective AOs) is 
+below a given threshold in the selected orbital range.
+In case of spin unrestricted calculations respective plots for alpha (...-a.png) and beta (...-b.png) 
+orbitals will be created. 
+
 
 Orbital range (-o, --orbitals)
 ------------------------------
-A range of orbitals can be defined with the '-o' (--orbitals) parameter. It should be noted that all
+A range of orbitals can be defined with the `-o (--orbitals)` parameter. It should be noted that all
 orbitals from the ORCA output will be processed first and that the orbital selection is done in a
 second step. 
-At least one argument is expected after '-o'. If the '-o' parameter is not given all orbitals will 
+At least one argument is expected after `-o`. If the `-o` parameter is not given all orbitals will 
 be included in the analysis.
 
 Examples:
@@ -78,12 +87,12 @@ Examples:
     -o0-10 or o0:10: processes all orbitals from 0 to 10
 
 
-Atom or element constriants (-c, --constriants)
+Atom or element constraints (-c, --constraints)
 -----------------------------------------------
-Analysis can be constrained to selected elements or atoms using the '-c' (--constraints) parameter. Elements 
+Analysis can be constrained to selected elements or atoms using the `-c (--constraints)` parameter. Elements 
 or atoms not present in the ORCA output file will be ignored without warning. The input is case sensitive and  
-multiple elements or atoms have to be separated by commas (','). Atom and elements constraints cannot be mixed.
-At least one argument is expected after '-c'.If the '-c' parameter is not given, all atoms and elements
+multiple elements or atoms must be separated by commas (','). Atom and elements constraints cannot be mixed.
+At least one argument is expected after `-c`. If the `-c` parameter is not given, all atoms and elements
 will be included in the analysis. The constraints are not valid for the first (two) tables (element contributions 
 to orbitals) and the bar plot(s).
 
@@ -101,12 +110,21 @@ Examples:
     -c1N     : not possible: analysis is constrained to atom 1, N will be ignored
     -cC3     : not possible: analysis is constrained to carbon atoms, 3 will be ignored
 
+The `-c` parameter with atom (numbers) as additional argument(s) also creates the AOs in orbitals heat maps.
+See the 'Heat map(s)' section for more details.
+
 
 CSV file and -ncsv (--newcsv) option
 ------------------------------------
 In a first step all information listed under 'LOEWDIN REDUCED ORBITAL POPULATIONS PER MO' will be read,
-and written to a large table. The naming scheme is 'orca.out.csv'. In subsequent analyses the program
-uses this file which makes analyses much faster. For creating a new CSV file, the option '-ncsv' can be used.
+and written to a large table. The naming scheme is `orca.out.csv`. In subsequent analyses the program
+uses this file which makes analyses much faster. For creating a new CSV file, the option `-ncsv` can be used.
+
+
+Known issues
+------------
+The plot section crashes without notice if a large number of orbitals (~1000) is processed. Plot artifacts
+may occur at even lower numbers of orbitals. The text out is not affected.
 
 
 Example inputs
