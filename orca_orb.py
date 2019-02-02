@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 '''
 orca_orb.py 
------------
+===========
+
 Analyzes the section 'LOEWDIN REDUCED ORBITAL POPULATIONS PER MO' in ORCA output files.
 
 ORCA: https://orcaforum.kofo.mpg.de/
@@ -10,76 +11,117 @@ Output will be written to 'o-analysis.txt'. Up to four plots will be created.
 The program needs write permissions in the output folder!
 
 Usage:
-(python) orca_orb.py -options ORCA.out
+    (python) orca_orb.py -options ORCA.out
 
 Options are -t, -o, -c, -ncsv (see below).
 
-Definitions: - Atoms are numbered items, e.g. 0, 1, 2, 3 (which are associated to Elements)
-             - Elements are Elements of the periodic table, e.g. C, N
-             - Orbital refers to the orbital in 'LOEWDIN REDUCED ORBITAL POPULATIONS PER MO' section
-             - Atomic orbitals or AOs are s, p, d, and f orbitals
-               Contributions to orbitals (in %) can be contributions from Atoms, a group of Atoms (=Elements)
-               and/or AOs. 
-             - The sum of all contributions of Atoms of the same Element is equal to the contribution of the respective 
-               Element to the Orbital.
-             - If a contribution or a sum of contributions is lower than a certain Trehshold the contribution may
-               not be included in the output of the program.
-             - Constraints refer to a selection of analyzed Atoms or Elements.
+Naming conventions
+------------------
+* Atoms are numbered items, e.g. 0, 1, 2, 3 (which are associated to Elements)
+* Elements are elements of the periodic table, e.g. C, N
+* Orbital refers to the orbital in the 'LOEWDIN REDUCED ORBITAL POPULATIONS PER MO' section
+* Atomic orbitals or AOs are s, p, d, and f orbitals
+* Contributions to orbitals (in %) can be contributions from Atoms, a group of Atoms (=Elements) 
+  and/or AOs. 
+* The sum of all contributions of Atoms of the same Element is equal to the contribution of the respective 
+  Element to the orbital.
+* If a contribution or a sum of contributions is lower than a certain Trehshold the contribution may
+  not be included in the output of the program.
+* Constraints refer to a selection of analyzed Atom or Element contributions.
 
+Output
+------
 'O-analysis.txt' contains tables that summarize contributions of elements (C, N, O, Fe...), 
 atoms (0, 1, 2 as they appear in the input) and AOs (s, p, d, f) to orbitals listed under 
 'LOEWDIN REDUCED ORBITAL POPULATIONS PER MO'. In case of spin unrestricted calculations 
 contributions to alpha and beta orbitals are listed separately. All contributions are given in '%'.
 
+Threshold (-t, --threshold)
+---------------------------
 To reduce the size of the output a threshold in '%' can be defined (-t or --threshold). Only
 (summarized) atom (including AOs) contributions higher or equal to the given threshold will
-be printed. The threshold is not valid for element contributions to orbitals.
+be printed. The threshold is not valid for the first (two) tables (element contributions to orbitals)
+and the bar plot(s).
 
+Bar plot(s)
+-----------
 The bar plot 'el-cntrb-a.png' visualizes the contribution (in %) of elements to orbitals. A given
-threshold is not valid for this plot.
+threshold or constraints are not valid for this plot. In case of spin unrestricted calculations 
+respective plots for alpha (...-a.png) and beta (...-b.png) orbitals will be created.
 
+Heat map(s)
+-----------
 The heat map 'a-cntrb-a.png' shows the contribution (in %) of atoms to orbitals. Values are printed
 if the size of the heat map is not to large. Otherwise different colors indicate high or low 
 contributions. All contribution below the threshold or zero contributions are '0' or have a black color.
 In case of spin unrestricted calculations respective plots for alpha (...-a.png) and beta (...-b.png) 
 orbitals will be created.
 
+Orbital range (-o, --orbitals)
+------------------------------
 A range of orbitals can be defined with the '-o' (--orbitals) parameter. It should be noted that all
 orbitals from the ORCA output will be processed first and that the orbital selection is done in a
 second step. 
 At least one argument is expected after '-o'. If the '-o' parameter is not given all orbitals will 
 be included in the analysis.
-Examples:
--o3            : processes orbital number 3
--oh or oHOMO   : processes the HOMO
--oh10          : processes all orbitals from HOMO-10 to HOMO+10
--o0-10 or o0:10: processes all orbitals from 0 to 10
 
+Examples:
+    
+    -o3            : processes orbital number 3
+    -oh or oHOMO   : processes the HOMO
+    -oh10          : processes all orbitals from HOMO-10 to HOMO+10
+    -o0-10 or o0:10: processes all orbitals from 0 to 10
+
+Atom or element constriants (-c, --constriants)
+-----------------------------------------------
 Analysis can be constrained to selected elements or atoms using the '-c' (--constraints) parameter. Elements 
 or atoms not present in the ORCA output file will be ignored without warning. The input is case sensitive and  
 multiple elements or atoms have to be separated by commas (','). Atom and elements constraints cannot be mixed.
 At least one argument is expected after '-c'.If the '-c' parameter is not given, all atoms and elements
-will be included in the analysis.
-Examples:
--cC      : analysis is constrained to carbon atoms
--cC,N    : analysis is constrained to carbon and nitrogen atoms
--cC,N,Zz : analysis is constrained to carbon and nitrogen atoms, since element 'Zz' has not been found in the ORCA output file 
--c1      : analysis is constrained to atom 1
--c1,4,5  : analysis is constrained to atom 1, 4 & 5
--c1,N    : not possible: analysis is constrained to atom 1, N will be ignored
--cC,3    : not possible: analysis is constrained to carbon atoms, 3 will be ignored
--c1N     : not possible: analysis is constrained to atom 1, N will be ignored
--cC3     : not possible: analysis is constrained to carbon atoms, 3 will be ignored
+will be included in the analysis. The constraints are not valid for the first (two) tables (element contributions 
+to orbitals) and the bar plot(s).
 
+Examples:
+    
+    -cC      : analysis is constrained to carbon atoms
+    -cC,N    : analysis is constrained to carbon and nitrogen atoms
+    -cC,N,Zz : analysis is constrained to carbon and nitrogen atoms, since element 'Zz' has not been found in the ORCA output file 
+    -c1      : analysis is constrained to atom 1
+    -c1,4,5  : analysis is constrained to atom 1, 4 & 5
+    -c1,N    : not possible: analysis is constrained to atom 1, N will be ignored
+    -cC,3    : not possible: analysis is constrained to carbon atoms, 3 will be ignored
+    -c1N     : not possible: analysis is constrained to atom 1, N will be ignored
+    -cC3     : not possible: analysis is constrained to carbon atoms, 3 will be ignored
+
+CSV file and -ncsv (--newcsv) option
+------------------------------------
 In a first step all information listed under 'LOEWDIN REDUCED ORBITAL POPULATIONS PER MO' will be read,
 and written to a large table. The naming scheme is 'orca.out.csv'. In subsequent analyses the program
 uses this file which makes analyses much faster. For creating a new CSV file, the option '-ncsv' can be used.
 
+Example inputs
+--------------
+(Threshold and constraints are not valid for the first (two) tables (element contributions to orbitals)
+ and the bar plot(s).)
+
+    orca_orb.py -t5 -cFe -oh10 my-calc.out
+    
+Orbitals from HOMO-10 to HOMO+10 with iron contributions >= 5% will be analyzed.
+    
+    orca_orb.py -t10 -c1,3 -o0:10 my-calc.out
+    
+Orbitals from 0 to 10 with contributions of atoms 1 & 3 >= 10% will be analyzed.
+    
+    orca_orb.py -t4.2 my-fe-calc.out
+    
+All orbitals with contributions from all elements (or all atoms) >= 4.2% will be analyzed.   
+
+
 Have fun!
 
+-------------------------------------------------------------------------------
 Check https://github.com/radi0sus for updates.
-
-----------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
  
 BSD 3-Clause License
 
@@ -132,8 +174,8 @@ def threshold_check(string):
         raise argparse.ArgumentTypeError(f"{value}% exceeds range. Quit." )
     return value
 
-def element_list(string):
-   return string.split(',')
+#def element_list(string):
+#   return string.split(',')
 
 # variables
 loewdin_last = False
@@ -158,7 +200,9 @@ parser = argparse.ArgumentParser(prog='orca_orb',
                                  'Writes a CSV file with orbitals to disk, ' 
                                  'for faster subsequent analyses.',
                                  formatter_class=argparse.RawTextHelpFormatter)
+
 parser.add_argument("filename", help="the ORCA output file")
+
 parser.add_argument('-o','--orbitals',
         default='all',
         help='specify orbital(s)\n'
@@ -166,12 +210,14 @@ parser.add_argument('-o','--orbitals',
         'e.g. -o1-10         = analyze orbitals 1 to 10\n'
         'e.g. -oh (or oHOMO) = analyze the HOMO\n'
         'e.g. -oh4           = analyze orbitals from HOMO-4 to HOMO+4\n')
+
 parser.add_argument('-t','--threshold', type=threshold_check,
         default=0,
         help='specify threshold (in %%) for printing\n'
         'A given threshold can be valid for different summations!\n'
         'orbitals >= threshold will be printed\n'
         'e.g. -t5.2 = analyze orbitals with a contribution of >= 5.2%%')
+
 parser.add_argument('-c','--constraints',
         default='none',
         help='specify elements or(!) atoms for analysis\n'
@@ -181,6 +227,7 @@ parser.add_argument('-c','--constraints',
         'e.g. -c1,2 = analyze all orbitals that contain contributions from atom 1 & 2\n'
         'e.g. -c1,N = not possible! only contributions from atom 1 will be considered\n'
         'input is case sensitive\n')
+
 parser.add_argument('-ncsv','--newcsv',
         default=0, action='store_true',
         help='build new CSV file with orbitals\n')
@@ -196,13 +243,13 @@ with open(args.filename,'r') as orca_out_file_name:
 
 # search for occurrences of LOEWDIN REDUCED ORBITAL POPULATIONS PER MO   
 # keep line number of last occurrence
-for i,line in enumerate(orca_out):
+for i,line in enumerate(orca_out):  
     if look_for_loewdin in line: 
         loewdin_last=i
         
 # end script if LOEWDIN REDUCED ORBITAL POPULATIONS PER MO is not in out file 
 # print error message
-if loewdin_last is False:
+if loewdin_last is False:  
     print("\n",look_for_loewdin,"not found in '"
           + orca_out_file_name.name+"'.")
     exit()
@@ -215,53 +262,71 @@ if loewdin_last is False:
 
 # check for csv file and read into data frame if available
 if ops.path.isfile(args.filename+'.csv') == True:
+    
     print('\nFound '+args.filename+'.csv in folder.')
+    
     if args.newcsv !=0:
         print('\n-ncsv option active. Building new '+args.filename+'.csv.')
+        
     if args.newcsv == 0:
-        oall=pd.read_csv(args.filename+'.csv')
-        old_csv=1
+        oall=pd.read_csv(args.filename+'.csv')  # load csv file
+        old_csv=1                               # set to 1 if successsful
         # check for beta orbitals in the csv file
         if len(oall[(oall.orb_spin > 0)]):
-            spin=1
+            spin=1                             # set to 1 if found
     else:
         old_csv=0
+        
 print('\nRead orbitals from file. Please be patient.\n') 
 
 # no csv file with orbitals = make new one
 if old_csv == 0: 
+    
     for line in orca_out[loewdin_last+1:]:    
+        
         if "SPIN DOWN" in line: # check for beta orbitals
-            spin=1  
+            spin=1              # set to 1 if found
+            
         if not "--" in line and not "SPIN" in line and not "THRESHOLD" in line:
+            
             if emptyline.match(line):
+                
                 if raworbitals:
                     en=pd.DataFrame(raworbitals[0:3]) # orb_no, energy, occ
                     oc=pd.DataFrame(raworbitals[3:])  # atom_no, element, orbital, contribution
                     ob=pd.DataFrame(dict(atom_no=oc[0],element=oc[1],orbital=oc[2]))
+                    
                     for i in range(0,len(en.loc[0])):
                         ob.insert(loc=3,column='orb_comp',value=oc[3+i])    # insert contribution
                         ob.insert(loc=0,column='orb_num',value=en.loc[0,i]) # insert orb_no
                         ob.insert(loc=1,column='orb_spin',value=spin)       # insert orb_spin
                         ob.insert(loc=2,column='orb_en',value=en.loc[1,i])  # insert orb_en
                         ob.insert(loc=3,column='orb_occ',value=en.loc[2,i]) # insert occ
+                        
                         if i==0:
-                            os=pd.DataFrame(ob) # initialize DataFrame for os
+                            os=pd.DataFrame(ob)                # initialize DataFrame for os
                         else:
                             os=os.append(ob,ignore_index=True) # final table from block
+                            
                         # delete rows that will be replaced by the next insertion
                         ob=ob.drop(columns=['orb_num','orb_spin','orb_en','orb_occ','orb_comp'])
+                        
                 emptyline_count +=1      # 1 empty line = end of the small orbital block
+                
                 if emptyline_count == 2: # 2 empty lines = end of the whole orbital block
                    break                 # exit the loop
+                   
                 if first_time == False:
                      oall=pd.DataFrame(os) # initialize DataFrame for oall
                      first_time=True       # but only once
+                     
                 else:
                     oall=oall.append(os,ignore_index=True)  # combine single block tables to a big table
                 raworbitals=[]                              # reset list of lines
+                
             else:
                 emptyline_count = 0 # reset empty line counter
+                
             if emptyline_count == 0: 
                 raworbitals.append(line.strip().split()) # split line in words
     
@@ -277,9 +342,9 @@ if old_csv == 0:
 
 # write data frame as csv file to hd
 if ops.path.isfile(args.filename+'.csv') == False or args.newcsv !=0:
+    
     oall.to_csv(args.filename+'.csv')
     print('Data frame saved to disk as '+args.filename+'.csv\n')
-
 
 ###############################################################################
 # get total number of orbitals (alpha & beta)
@@ -287,7 +352,7 @@ tot_num_of_orb=oall.groupby(['orb_spin'], as_index=False)['orb_num'].max()
 tot_num_of_orb_a=tot_num_of_orb.loc[0,'orb_num']
 
 if spin==1:
-    tot_num_of_orb_b=tot_num_of_orb.loc[1,'orb_num']
+    tot_num_of_orb_b=tot_num_of_orb.loc[1,'orb_num'] # beta orbitals
     
 # get orbital no of the HOMO
 homo_num = oall.groupby(['orb_occ'], as_index=False)['orb_num'].max()
@@ -295,31 +360,29 @@ homo_num = homo_num.loc[1,'orb_num']
 
 ###############################################################################
 # get the numbers of orbitals to process (from argparse) 
+# get the constraints (from argparse) 
+
 orbrange = re.compile('\d+')            # regex for orbital range input
 orbrange_homo = re.compile('h(\d+)')    # regex for HOMO+-n range input
-elm = re.compile('[A-Z][a-z]{0,1}')
-atm = re.compile('[\d]+')
+elm = re.compile('[A-Z][a-z]{0,1}')     # regex for elements: C, N, Fe, ...
+atm = re.compile('[\d]+')               # regex for atoms: 0, 1, 2, ...
 
-if args.orbitals == 'all':
-    
+if args.orbitals == 'all':   
     orb_start = 0
     orb_end = tot_num_of_orb_a
     print(f'Analyzing all orbitals ({orb_start}...{orb_end}). Please be patient.\n')
     
-elif args.orbitals == 'HOMO' or args.orbitals == 'h' or args.orbitals == 'homo':
-    
+elif args.orbitals == 'HOMO' or args.orbitals == 'h' or args.orbitals == 'homo':  
     orb_start = homo_num
     orb_end = homo_num
     print(f'Analyzing HOMO. Orbital {homo_num}. Please be patient.\n')
     
-elif args.orbitals.isdigit():
-    
+elif args.orbitals.isdigit():  
     orb_start = int(args.orbitals)
     orb_end = int(args.orbitals)
     print(f'Analyzing orbital {args.orbitals}. Please be patient.\n')
     
-elif orbrange.match(args.orbitals):
-    
+elif orbrange.match(args.orbitals):    
     orb_start = int(orbrange.findall(args.orbitals)[0])
     orb_end = int(orbrange.findall(args.orbitals)[1])
     
@@ -329,8 +392,7 @@ elif orbrange.match(args.orbitals):
         
     print(f'Analyzing orbitals {orb_start}...{orb_end}. Please be patient.\n')
     
-elif orbrange_homo.match(args.orbitals):
-    
+elif orbrange_homo.match(args.orbitals):    
     orb_start = homo_num - int(orbrange_homo.findall(args.orbitals)[0])
     orb_end = homo_num + int(orbrange_homo.findall(args.orbitals)[0])
     print(f'Analyzing orbitals {orb_start}...{orb_end}. Please be patient.\n')
@@ -341,9 +403,10 @@ else:
     
 ###############################################################################
 # get the constraints (from argparse) 
+# Element constraints are in the list: list_of_elements
+# Atom constraints are in the list: list_of_atoms
 
 if args.constraints == 'none':
-    
         list_of_elements=oall['element'].unique()
         list_of_atoms=oall['atom_no'].unique()
         appl_constr='none'
@@ -351,7 +414,8 @@ if args.constraints == 'none':
 elif elm.match(args.constraints):
     
     if list(set(elm.findall(args.constraints)).intersection(oall['element'].unique())):
-        list_of_elements=list(set(elm.findall(args.constraints)).intersection(oall['element'].unique()))
+        list_of_elements=list(set(elm.findall(args.constraints)).intersection(
+                         oall['element'].unique()))
         list_of_atoms=oall['atom_no'].unique()
         appl_constr=f'Elements {list_of_elements}'
     else:
@@ -364,7 +428,8 @@ elif elm.match(args.constraints):
 elif atm.match(args.constraints):
     
     if list(set(map(int,atm.findall(args.constraints))).intersection(oall['atom_no'].unique())):
-        list_of_atoms=list(set(map(int,atm.findall(args.constraints))).intersection(oall['atom_no'].unique()))
+        list_of_atoms=list(set(map(int,atm.findall(args.constraints))).intersection(
+                      oall['atom_no'].unique()))
         list_of_elements=oall['element'].unique()
         appl_constr=f'Atoms {list_of_atoms}'
     else:
@@ -392,19 +457,24 @@ if orb_start < 0 or orb_end < 0 or orb_end > tot_num_of_orb_a:
 # print summary
 # name of the output file is 'o-analysis.txt'
     
-file = open('o-analysis.txt','w')  
+file = open('o-analysis.txt','w')  # open file
     
 file.write('==================================================================\n')
 file.write(' '.join((look_for_loewdin,'analysis of',args.filename+'\n')))
+
 if orb_start == orb_end:
     file.write(f'Analyzed orbital          : {orb_start}\n')
+    
 else:
     file.write(f'Analyzed orbitals         : {orb_start}...{orb_end}\n')
+    
 if spin==1:
     file.write(' '.join(("Alpha spin orbitals       :",str(tot_num_of_orb_a)+'\n')))
     file.write(' '.join(("Beta spin Orbitals        :",str(tot_num_of_orb_b)+'\n')))
+
 else:
     file.write(' '.join(("Number of orbitals        :",str(tot_num_of_orb_a)+'\n')))
+    
 file.write(' '.join(("Orbital no. of the HOMO   :", str(homo_num)+'\n')))
 file.write(' '.join(("Threshold for printing (%):", str(threshold)+'\n')))
 file.write("Applied constraints       : " +appl_constr.translate({ord(c): None for c in "[]',"})+"\n")
@@ -412,10 +482,11 @@ file.write('==================================================================\n
 
 ###############################################################################
 # print orbitals in a given range with a given threshold
-# sum over elements (no threshold)
-# sum over atoms, print >= threshold
-# sum over AOs, print >= threshold
-# AOs in orbitals, print >= threshold
+# sum over elements (no threshold & no restraints)
+# sum over atoms, print  >= threshold (element & atom restraints are applied)
+# sum over AOs, print    >= threshold (element & atom restraints are applied)
+# AOs in orbitals, print >= threshold (element & atom restraints are applied)
+# 
 
 # rename columns
 oall=oall.rename({'orb_num':'OrbNo','orb_spin':'Spin','orb_en':'OrbitalEnergy',
@@ -426,82 +497,120 @@ oall=oall.rename({'orb_num':'OrbNo','orb_spin':'Spin','orb_en':'OrbitalEnergy',
 # print '(alpha)' in case of open shell or '' in case of closed shell
 if spin==1:
     alpha_str=' (alpha)'
+    
 else:
     alpha_str=''
 
 # write tables to file:
+############################################################################### 
 file.write('\nSummary of element contributions (>= 0%) to orbitals'+alpha_str+':\n'
-      '==================================================================\n')
+           '==================================================================\n')
+
 sum_by_el_a=oall[(oall.Spin == 0) & (oall.OrbNo >= orb_start)  & (oall.OrbNo <=orb_end) 
-        ].groupby(['OrbNo','OrbitalEnergy','Occupation','Element']).agg({'Cntrb':'sum'})
-file.write(sum_by_el_a.reset_index().set_index(['OrbNo','OrbitalEnergy','Occupation','Element']).unstack().fillna(0).to_string(index=True)+'\n')
+            ].groupby(['OrbNo','OrbitalEnergy','Occupation','Element']).agg({'Cntrb':'sum'})
+
+file.write(sum_by_el_a.reset_index().set_index(['OrbNo','OrbitalEnergy','Occupation','Element'])
+           .unstack().fillna(0).to_string(index=True)+'\n')
 
 if spin==1:
     file.write('\nSummary of element contributions (>= 0%) to orbitals (beta):\n'
-          '==================================================================\n')
+               '==================================================================\n')
+    
     sum_by_el_b=oall[(oall.Spin == 1) & (oall.OrbNo >= orb_start)  & (oall.OrbNo <=orb_end) 
-            ].groupby(['OrbNo','OrbitalEnergy','Occupation','Element']).agg({'Cntrb':'sum'})
-    file.write(sum_by_el_b.reset_index().set_index(['OrbNo','OrbitalEnergy','Occupation','Element']).unstack().fillna(0).to_string(index=True)+'\n')
-   
+                ].groupby(['OrbNo','OrbitalEnergy','Occupation','Element']).agg({'Cntrb':'sum'})
+    
+    file.write(sum_by_el_b.reset_index().set_index(['OrbNo','OrbitalEnergy','Occupation','Element'])
+               .unstack().fillna(0).to_string(index=True)+'\n')
+    
+###############################################################################  
+    
 file.write(f'\nSummary of atom contributions (>= {threshold}%) to orbitals'+alpha_str+':\n'
-       '==================================================================\n')
+            '==================================================================\n')
+
 sum_by_at_a=oall[(oall.Spin == 0) & (oall.OrbNo >= orb_start)  & (oall.OrbNo <=orb_end) &
-        oall.Element.isin(list_of_elements) & oall.AtomNo.isin(list_of_atoms)].groupby(
-                 ['OrbNo','OrbitalEnergy','Occupation','Element','AtomNo']).agg({'Cntrb':'sum'})
+            oall.Element.isin(list_of_elements) & oall.AtomNo.isin(list_of_atoms)].groupby(
+            ['OrbNo','OrbitalEnergy','Occupation','Element','AtomNo']).agg({'Cntrb':'sum'})
+
 file.write(sum_by_at_a[(sum_by_at_a.Cntrb >= threshold)].to_string(index=True)+'\n')
 
 if spin==1:
     file.write(f'\nSummary of atom contributions (>= {threshold}%) to orbitals (beta):\n'
-           '==================================================================\n')
+                '==================================================================\n')
+    
     sum_by_at_b=oall[(oall.Spin == 1) & (oall.OrbNo >= orb_start)  & (oall.OrbNo <=orb_end) &
-            oall.Element.isin(list_of_elements) & oall.AtomNo.isin(list_of_atoms)].groupby(
-                     ['OrbNo','OrbitalEnergy','Occupation','Element','AtomNo']).agg({'Cntrb':'sum'})
+                oall.Element.isin(list_of_elements) & oall.AtomNo.isin(list_of_atoms)].groupby(
+                ['OrbNo','OrbitalEnergy','Occupation','Element','AtomNo']).agg({'Cntrb':'sum'})
+    
     file.write(sum_by_at_b[(sum_by_at_b.Cntrb >= threshold)].to_string(index=True)+'\n')
-
+    
+###############################################################################
+    
 file.write(f'\nSummary of red. AO contributions (>= {threshold}%) to orbitals'+alpha_str+':\n'
-       '==================================================================\n')
+            '==================================================================\n')
+
 sum_by_orb=oall[(oall.Spin == 0) & (oall.OrbNo >= orb_start)  & (oall.OrbNo <=orb_end) &
-        oall.Element.isin(list_of_elements) & oall.AtomNo.isin(list_of_atoms)].groupby(
-                ['OrbNo','OrbitalEnergy','Occupation','Element','AtomNo','Orb']).agg({'Cntrb':'sum'})
+           oall.Element.isin(list_of_elements) & oall.AtomNo.isin(list_of_atoms)].groupby(
+           ['OrbNo','OrbitalEnergy','Occupation','Element','AtomNo','Orb']).agg({'Cntrb':'sum'})
+
 file.write(sum_by_orb[(sum_by_orb.Cntrb >= threshold)].to_string(index=True)+'\n')
 
 if spin==1:
     file.write(f'\nSummary of red. AO contributions (>= {threshold}%) to orbitals (beta):\n'
-          '==================================================================\n')
+                '==================================================================\n')
+    
     sum_by_orb=oall[(oall.Spin == 1) & (oall.OrbNo >= orb_start)  & (oall.OrbNo <=orb_end) &
-            oall.Element.isin(list_of_elements) & oall.AtomNo.isin(list_of_atoms)].groupby(
-                    ['OrbNo','OrbitalEnergy','Occupation','Element','AtomNo','Orb']).agg({'Cntrb':'sum'})
+               oall.Element.isin(list_of_elements) & oall.AtomNo.isin(list_of_atoms)].groupby(
+               ['OrbNo','OrbitalEnergy','Occupation','Element','AtomNo','Orb']).agg({'Cntrb':'sum'})
+    
     file.write(sum_by_orb[(sum_by_orb.Cntrb >= threshold)].to_string(index=True)+'\n')
-
+    
+###############################################################################
+    
 file.write(f'\nSummary of AO contributions (>= {threshold}%) to orbitals'+alpha_str+':\n'
-       '==================================================================\n')
+            '==================================================================\n')
+
 sum_by_orb_or_a=oall[(oall.Spin == 0) & (oall.OrbNo >= orb_start)  & (oall.OrbNo <=orb_end) &
-        oall.Element.isin(list_of_elements) & oall.AtomNo.isin(list_of_atoms)].groupby(
-                     ['OrbNo','OrbitalEnergy','Occupation','Element','AtomNo','Orb','OrbOr']).agg({'Cntrb':'sum'})
+                oall.Element.isin(list_of_elements) & oall.AtomNo.isin(list_of_atoms)].groupby(
+                ['OrbNo','OrbitalEnergy','Occupation','Element','AtomNo','Orb','OrbOr']).agg({'Cntrb':'sum'})
+
 file.write(sum_by_orb_or_a[(sum_by_orb_or_a.Cntrb >= threshold)].to_string(index=True)+'\n')
 
 if spin==1:
     file.write(f'\nSummary of AO contributions (>= {threshold}%) to orbitals (beta):\n'
-          '==================================================================\n')
+                '==================================================================\n')
+    
     sum_by_orb_or_b=oall[(oall.Spin == 1) & (oall.OrbNo >= orb_start)  & (oall.OrbNo <=orb_end) &
-            oall.Element.isin(list_of_elements) & oall.AtomNo.isin(list_of_atoms)].groupby(
-                         ['OrbNo','OrbitalEnergy','Occupation','Element','AtomNo','Orb','OrbOr']).agg({'Cntrb':'sum'})
+                    oall.Element.isin(list_of_elements) & oall.AtomNo.isin(list_of_atoms)].groupby(
+                    ['OrbNo','OrbitalEnergy','Occupation','Element','AtomNo','Orb','OrbOr']).agg({'Cntrb':'sum'})
+    
     file.write(sum_by_orb_or_b[(sum_by_orb_or_b.Cntrb >= threshold)].to_string(index=True)+'\n')
-
+    
+###############################################################################
+    
 file.write(f'\nAOs (contribution >= {threshold}%) in orbitals'+alpha_str+':\n'
-       '==================================================================\n')
-ao_in_orb_a=sum_by_orb_or_a.reset_index().drop(columns=['OrbitalEnergy']).rename({'Occupation':'Occ'},axis='columns').set_index(['AtomNo','Element','Orb','OrbOr','OrbNo','Occ']).sort_index()
+            '==================================================================\n')
+
+ao_in_orb_a=sum_by_orb_or_a.reset_index().drop(columns=['OrbitalEnergy']).rename(
+            {'Occupation':'Occ'},axis='columns').set_index([
+            'AtomNo','Element','Orb','OrbOr','OrbNo','Occ']).sort_index()
+
 ao_in_orb_a=ao_in_orb_a.rename({'Occupation':'Occ'},axis='index')
+
 file.write(ao_in_orb_a[(ao_in_orb_a.Cntrb >= threshold)].to_string(index=True)+'\n')
 
 if spin==1:
     file.write(f'\nAOs (contribution >= {threshold}%) in orbitals (beta):\n'
-          '==================================================================\n')
-    ao_in_orb_b=sum_by_orb_or_b.reset_index().drop(columns=['OrbitalEnergy']).rename({'Occupation':'Occ'},axis='columns').set_index(['AtomNo','Element','Orb','OrbOr','OrbNo','Occ']).sort_index() 
+                '==================================================================\n')
+    
+    ao_in_orb_b=sum_by_orb_or_b.reset_index().drop(columns=['OrbitalEnergy']).rename(
+                {'Occupation':'Occ'},axis='columns').set_index([
+                'AtomNo','Element','Orb','OrbOr','OrbNo','Occ']).sort_index() 
+        
+    ao_in_orb_b=ao_in_orb_b.rename({'Occupation':'Occ'},axis='index')
+    
     file.write(ao_in_orb_b[(ao_in_orb_b.Cntrb >= threshold)].to_string(index=True)+'\n')
 
-file.close()
-
+file.close() # close file
 
 ###############################################################################
 # plot section
@@ -514,39 +623,50 @@ file.close()
 print('Preparing plots. Please be patient.\n')
 
 # unstack table
-sum_by_el_plot_a=sum_by_el_a.reset_index().drop(columns=['OrbitalEnergy']).set_index(['OrbNo','Occupation','Element']).unstack().fillna(0)
+sum_by_el_plot_a=sum_by_el_a.reset_index().drop(columns=['OrbitalEnergy']).set_index(
+                 ['OrbNo','Occupation','Element']).unstack().fillna(0)
 
 # print warning if output gets "unreadable"
 # turn off heat map annotations if number of orbitals is > 50
 if len(sum_by_el_plot_a) > 50:
     print('Warning! A large number of orbitals may reduce the readability of the diagrams.\n'
           'Heat map annotations are turned off.\n')
-    heatmap_ano=False
+    heatmap_ano=False # no annotations 
 
 if spin==1:
-    sum_by_el_plot_b=sum_by_el_b.reset_index().drop(columns=['OrbitalEnergy']).set_index(['OrbNo','Occupation','Element']).unstack().fillna(0)
+    # unstack table
+    sum_by_el_plot_b=sum_by_el_b.reset_index().drop(columns=['OrbitalEnergy']).set_index(
+                     ['OrbNo','Occupation','Element']).unstack().fillna(0)
+    
     # plot options for beta orbitals start here:
     ax=sum_by_el_plot_b.plot.barh(xlim=(0,100),stacked=True) 
     ax.legend(sum_by_el_plot_b.columns.get_level_values(1),loc='upper left')
-    ax.set_title(f'Element contributions (>= 0%) to orbitals (beta). The orbital number of the HOMO (alpha) is {homo_num}.')
+    ax.set_title('Element contributions (>= 0%) to orbitals (beta).' 
+                  f'The orbital number of the HOMO (alpha) is {homo_num}.')
     ax.set_xlabel('Element contribution (%)')
     ax.set_ylabel('(Orbital No., Occupation)')
+    
     # reduce some labels in large plots
     if len(sum_by_el_plot_b) > 30:
         ax.set_yticklabels([t if not i%2 else "" for i,t in enumerate(ax.get_yticklabels())])
+        
     if len(sum_by_el_plot_b) > 50:
         ax.set_yticklabels([t if not i%4 else "" for i,t in enumerate(ax.get_yticklabels())])
+        
     fig = ax.get_figure()
+    
     # for very large plots of element contributions
     if len(sum_by_el_plot_b) > 100:
+        
        w, h=fig.get_size_inches()
        h = len(sum_by_el_plot_b)/10+1
        fig.set_size_inches(1.5*h, h)
-       for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] +
-             ax.get_xticklabels() + ax.get_yticklabels()):
-        item.set_fontsize(20)
-        ax.legend(sum_by_el_plot_b.columns.get_level_values(1),loc='upper left',fontsize=20)
-        
+       
+       for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
+           item.set_fontsize(20)
+           
+       ax.legend(sum_by_el_plot_b.columns.get_level_values(1),loc='upper left',fontsize=20)
+      
     plt.tight_layout()
     fig.savefig('el-cntrb-b.png',dpi=300)
     plt.close(fig)
@@ -554,28 +674,38 @@ if spin==1:
 # plot options for (alpha) orbitals start here:
 ax=sum_by_el_plot_a.plot.barh(xlim=(0,100),stacked=True)
 ax.legend(sum_by_el_plot_a.columns.get_level_values(1),loc='upper left')
-ax.set_title('Element contributions (>= 0%) to orbitals'+alpha_str+'.'+f' The orbital number of the HOMO is {homo_num}.')
+ax.set_title('Element contributions (>= 0%) to orbitals'+alpha_str+'.'
+             +f' The orbital number of the HOMO is {homo_num}.')
 ax.set_xlabel('Element contribution (%)')
 ax.set_ylabel('(Orbital No., Occupation)')
+
 # reduce some labels in large plots
 if len(sum_by_el_plot_a) > 30:
     ax.set_yticklabels([t if not i%2 else "" for i,t in enumerate(ax.get_yticklabels())])
+    
 if len(sum_by_el_plot_a) > 50:
     ax.set_yticklabels([t if not i%4 else "" for i,t in enumerate(ax.get_yticklabels())])
+    
 fig = ax.get_figure()
+
 # for very large plots of element contributions
 if len(sum_by_el_plot_a) > 100:
+    
     w, h=fig.get_size_inches()
     h = len(sum_by_el_plot_a)/10+1
     fig.set_size_inches(1.5*h, h)
-    for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] +
-             ax.get_xticklabels() + ax.get_yticklabels()):
+    
+    for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
         item.set_fontsize(20)
+        
     ax.legend(sum_by_el_plot_a.columns.get_level_values(1),loc='upper left',fontsize=20)
     
 plt.tight_layout()
 fig.savefig('el-cntrb-a.png',dpi=300)
 plt.close(fig)
+
+###############################################################################
+# heat maps
 
 # warn if contribution is zero and exit, otherwise error messages
 if len(sum_by_at_a[(sum_by_at_a.Cntrb >= threshold)]) == 0:
@@ -584,14 +714,20 @@ if len(sum_by_at_a[(sum_by_at_a.Cntrb >= threshold)]) == 0:
     
 # plot of atom contributions in orbitals >= threshold
 sum_by_at_plot_a=sum_by_at_a[(sum_by_at_a.Cntrb >= threshold)].reset_index().drop(columns=['OrbitalEnergy'])
+
 # convert AtomNo to string with leading zero
 sum_by_at_plot_a['AtomNo']=sum_by_at_plot_a['AtomNo'].apply(lambda x: str(x).zfill(2))
+
 # join AtomNo Element to AtomNo-Element
 # otherwise sorting on x-axis is not nice
 sum_by_at_plot_a['Atom'] = sum_by_at_plot_a[['AtomNo','Element']].apply(lambda x: ' '.join(x), axis=1)
+
+# drop 'AtomNo' & 'Element' columns, since no longer needed
 sum_by_at_plot_a=sum_by_at_plot_a.drop(columns=['AtomNo','Element'])
+
 # unstack table
 sum_by_at_plot_a=sum_by_at_plot_a.set_index(['OrbNo','Occupation','Atom']).unstack().fillna(0)
+
 # drop one index level
 sum_by_at_plot_a.columns=sum_by_at_plot_a.columns.droplevel()
 
@@ -607,9 +743,10 @@ if spin == 1:
     sum_by_at_plot_b=sum_by_at_plot_b.drop(columns=['AtomNo','Element'])
     sum_by_at_plot_b=sum_by_at_plot_b.set_index(['OrbNo','Occupation','Atom']).unstack().fillna(0)
     sum_by_at_plot_b.columns=sum_by_at_plot_b.columns.droplevel()
+    
     # plot options for beta orbitals start here:
     ax=sns.heatmap(data=sum_by_at_plot_b,cmap='hot',linecolor='black',
-      annot=heatmap_ano,fmt='g',xticklabels=True,linewidths=0.5,cbar=False,annot_kws={"size": 4}) 
+       annot=heatmap_ano,fmt='g',xticklabels=True,linewidths=0.5,cbar=False,annot_kws={"size": 4}) 
     ax.invert_yaxis()
     ax.set_title(f'Atom contributions (>= {threshold}%) to orbitals (beta). The orbital number of the HOMO (alpha) is {homo_num}.\n'
                  f'Contributions <= {threshold}% are "0" or "black" in the heat map.')
@@ -625,7 +762,7 @@ if spin == 1:
     
 # plot options for (alpha) orbitals start here:
 ax=sns.heatmap(data=sum_by_at_plot_a,cmap='hot',linecolor='black',
-              annot=heatmap_ano,fmt='g',xticklabels=True,linewidths=0.5,cbar=False,annot_kws={"size": 4}) 
+   annot=heatmap_ano,fmt='g',xticklabels=True,linewidths=0.5,cbar=False,annot_kws={"size": 4}) 
 
 ax.invert_yaxis()
 ax.set_title(f'Atom contributions (>= {threshold}%) to orbitals'+alpha_str+f'. The orbital number of the HOMO is {homo_num}.\n'
