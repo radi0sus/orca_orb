@@ -77,7 +77,8 @@ Examples:
     
     -cC      : analysis is constrained to carbon atoms
     -cC,N    : analysis is constrained to carbon and nitrogen atoms
-    -cC,N,Zz : analysis is constrained to carbon and nitrogen atoms, since element 'Zz' has not been found in the ORCA output file 
+    -cC,N,Zz : analysis is constrained to carbon and nitrogen atoms, 
+               since element 'Zz' has not been found in the ORCA output file 
     -c1      : analysis is constrained to atom 1
     -c1,4,5  : analysis is constrained to atom 1, 4 & 5
     -c1,N    : not possible: analysis is constrained to atom 1, N will be ignored
@@ -93,8 +94,9 @@ uses this file which makes analyses much faster. For creating a new CSV file, th
 
 Example inputs
 --------------
-(Threshold and constraints are not valid for the first (two) tables (element contributions to orbitals)
- and the bar plot(s).)
+Threshold and constraints are not valid for the first (two) tables (element contributions to orbitals)
+ and the bar plot(s).
+ 
     orca_orb.py -t5 -cFe -oh10 my-calc.out
     
 Orbitals from HOMO-10 to HOMO+10 with iron contributions >= 5% will be analyzed.
