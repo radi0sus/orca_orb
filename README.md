@@ -62,8 +62,8 @@ In case of spin unrestricted calculations respective plots for alpha (...-a.png)
 orbitals will be created.
 
 The heat map `ao-cntrb-Element/Atom-a.png` shows the contribution (in %) of the atomic orbitals (s, p, d, f) 
-of a specific atom in a range of orbitals. The heat map will be created if the `-c` parameter is invoked with 
-a specific atom number or atom numbers, e.g. `-c0` or `-c0,1,2`.
+of a specific atom in a range of orbitals. The heat map will be created if the `-a` parameter is invoked with 
+a specific atom number or atom numbers, e.g. `-a0` or `-a0,1,2`.
 All contribution below the threshold or zero contributions are '0' or have a black color. A heat map
 for a selected atom might not be created if the contribution of the atom (or the respective AOs) is 
 below a given threshold in the selected orbital range.
@@ -110,9 +110,23 @@ Examples:
     -c1N     : not possible: analysis is constrained to atom 1, N will be ignored
     -cC3     : not possible: analysis is constrained to carbon atoms, 3 will be ignored
 
-The `-c` parameter with atom (numbers) as additional argument(s) also creates the AOs in orbitals heat maps.
-See the 'Heat map(s)' section for more details.
+    
+AOs in orbital plots (-a, --aorbitals)
+--------------------------------------
+The `-a` parameter with atom (numbers) as additional argument(s) creates the AOs in orbitals heat maps. 
+If constraints are operative they might interfere with atoms given after `-a`. So if carbon atoms are excluded
+from the analysis, a heat map of the AOs of carbon atom 5 `-a5` will not be created. Threshold is effective 
+as well. See the 'Heat map(s)' section for more details.
+In case of spin unrestricted calculations respective plots for alpha (...-a.png) and beta (...-b.png) 
+orbitals will be created. 
 
+Examples:
+    
+    -a1      : a heat map of the AOs of atom 1 will be created
+    -a1,4,5  : heat maps of the AOs of atom 1, 4 & 5 will be created
+    
+    -cCu -a1 : not possible if atom 1 is not copper
+    
 
 CSV file and -ncsv (--newcsv) option
 ------------------------------------
@@ -142,7 +156,12 @@ Orbitals from 0 to 10 with contributions of atoms 1 & 3 >= 10% will be analyzed:
     
 All orbitals with contributions from all elements (or all atoms) >= 4.2% will be analyzed:
     
-    orca_orb.py -t4.2 my-calc.out
+    orca_orb.py -t5 my-calc.out
+    
+All orbitals with contributions from all elements (or all atoms) >= 5% will be analyzed. 
+Furthermore plots of the AOs of atom 0 and 1 in all orbitals will be created:
+    
+    orca_orb.py -t4.2 -a0,1 my-calc.out
     
  
 Have fun!
