@@ -64,8 +64,8 @@ In case of spin unrestricted calculations respective plots for alpha (...-a.png)
 orbitals will be created.
 
 The heat map `ao-cntrb-Element/Atom-a.png` shows the contribution (in %) of the atomic orbitals (s, p, d, f) 
-of a specific atom in a range of orbitals. The heat map will be created if the `-c` parameter is invoked with 
-a specific atom number or atom numbers, e.g. `-c0` or `-c0,1,2`.
+of a specific atom in a range of orbitals. The heat map will be created if the `-a` parameter is invoked with 
+a specific atom number or atom numbers, e.g. `-a0` or `-a0,1,2`.
 All contribution below the threshold or zero contributions are '0' or have a black color. A heat map
 for a selected atom might not be created if the contribution of the atom (or the respective AOs) is 
 below a given threshold in the selected orbital range.
@@ -112,9 +112,23 @@ Examples:
     -c1N     : not possible: analysis is constrained to atom 1, N will be ignored
     -cC3     : not possible: analysis is constrained to carbon atoms, 3 will be ignored
 
-The `-c` parameter with atom (numbers) as additional argument(s) also creates the AOs in orbitals heat maps.
-See the 'Heat map(s)' section for more details.
+    
+AOs in orbital plots (-a, --aorbitals)
+--------------------------------------
+The `-a` parameter with atom (numbers) as additional argument(s) creates the AOs in orbitals heat maps. 
+If constraints are operative they might interfere with atoms given after `-a`. So if carbon atoms are excluded
+from the analysis, a heat map of the AOs of carbon atom 5 (`-a5`) will not be created. Threshold is effective 
+as well. See the 'Heat map(s)' section for more details.
+In case of spin unrestricted calculations respective plots for alpha (...-a.png) and beta (...-b.png) 
+orbitals will be created. 
 
+Examples:
+    
+    -a1      : a heat map of the AOs of atom 1 will be created
+    -a1,4,5  : heat maps of the AOs of atom 1, 4 & 5 will be created
+    
+    -cCu -a1 : not possible if atom 1 is not copper
+    
 
 CSV file and -ncsv (--newcsv) option
 ------------------------------------
@@ -144,7 +158,12 @@ Orbitals from 0 to 10 with contributions of atoms 1 & 3 >= 10% will be analyzed:
     
 All orbitals with contributions from all elements (or all atoms) >= 4.2% will be analyzed:
     
-    orca_orb.py -t4.2 my-calc.out
+    orca_orb.py -t5 my-calc.out
+    
+All orbitals with contributions from all elements (or all atoms) >= 5% will be analyzed. 
+Furthermore plots of the AOs of atom 0 and 1 in all orbitals will be created:
+    
+    orca_orb.py -t5 -a0,1 my-calc.out
     
  
 Have fun!
@@ -202,6 +221,7 @@ pd.set_option('display.max_rows',None)
 
 
 # tidy up plots
+# delete all previous plots
 if ops.path.exists('el-cntrb-a.png'):
     ops.remove('el-cntrb-a.png')
     
@@ -231,18 +251,19 @@ def threshold_check(string):
     return value
 
 
-# variables
-loewdin_last = False
+# variables - probably not all of them are necessary - some of them are just reminders
+loewdin_last = False            # for detecting the last occurence of look_for_loewdin
 look_for_loewdin = 'LOEWDIN REDUCED ORBITAL POPULATIONS PER MO'
-is_empty_line = False
-emptyline = re.compile('^\s*$')
-emptyline_count = 0
-raworbitals = []
-first_time = False
-spin=0
-old_csv=0
-heatmap_ano=True
-constr_for_atoms_set=False
+is_empty_line = False           # empty line bool in orbital table creation
+emptyline = re.compile('^\s*$') # empty line detect in orbital table creation
+emptyline_count = 0             # empty line count in orbital table creation
+raworbitals = []                # raworbitals reset
+first_time = False              # for data frame initialization
+spin=0                          # bool if beta orbitals are present
+old_csv=0                       # old csv detected in folder
+heatmap_ano=True                # for heat map annotations
+constr_for_atoms_set=False      # for telling the plot section to plot the AOs of the selected atom
+hm_ano_font_size = 4            # font size for heat maps
 # end variables
 
 # parse arguments
@@ -283,6 +304,12 @@ parser.add_argument('-c','--constraints',
         'e.g. -c1,N = not possible! only contributions from atom 1 will be considered\n'
         'input is case sensitive\n')
 
+parser.add_argument('-a','--aorbitals',
+        default='none',
+        help='specify atoms for atomic orbitals heat map plots\n'
+        'e.g. -a1   = plot heat map of contributions from AOs of atom 1\n'
+        'e.g. -a1,2 = plot heat map of contributions from AOs of atom 1 & 2\n')
+
 parser.add_argument('-ncsv','--newcsv',
         default=0, action='store_true',
         help='build new CSV file with orbitals\n')
@@ -301,7 +328,7 @@ with open(args.filename,'r') as orca_out_file_name:
 for i,line in enumerate(orca_out):  
     if look_for_loewdin in line: 
         loewdin_last=i
-        
+
 # end script if LOEWDIN REDUCED ORBITAL POPULATIONS PER MO is not in out file 
 # print error message
 if loewdin_last is False:  
@@ -338,14 +365,14 @@ print('\nReading orbitals from file. Please be patient.\n')
 if old_csv == 0: 
     
     for line in orca_out[loewdin_last+1:]:    
-        
+
         if "SPIN DOWN" in line: # check for beta orbitals
             spin=1              # set to 1 if found
             
         if not "--" in line and not "SPIN" in line and not "THRESHOLD" in line:
             
             if emptyline.match(line):
-                
+  
                 if raworbitals:
                     en=pd.DataFrame(raworbitals[0:3]) # orb_no, energy, occ
                     oc=pd.DataFrame(raworbitals[3:])  # atom_no, element, orbital, contribution
@@ -464,7 +491,7 @@ else:
 if args.constraints == 'none':
         list_of_elements=oall['element'].unique()
         list_of_atoms=oall['atom_no'].unique()
-        appl_constr='none'
+        appl_constr='none' # for print summary
 
 elif elm.match(args.constraints):
     
@@ -472,13 +499,13 @@ elif elm.match(args.constraints):
         list_of_elements=list(set(elm.findall(args.constraints)).intersection(
                          oall['element'].unique()))
         list_of_atoms=oall['atom_no'].unique()
-        appl_constr=f'Elements {list_of_elements}'
+        appl_constr=f'Elements {list_of_elements}' # for print summary
     else:
         print('Warning! None of the specified elements have been found.\n'
               'Continue using all available elements.\n')
         list_of_elements=oall['element'].unique()
         list_of_atoms=oall['atom_no'].unique()
-        appl_constr='none'
+        appl_constr='none' # for print summary
         
 elif atm.match(args.constraints):
     
@@ -486,23 +513,76 @@ elif atm.match(args.constraints):
         list_of_atoms=list(set(map(int,atm.findall(args.constraints))).intersection(
                       oall['atom_no'].unique()))
         list_of_elements=oall['element'].unique()
-        appl_constr=f'Atoms {list_of_atoms}'
-        constr_for_atoms_set=True # tell the plot section to plot the AOs of the selected atoma
+        list_of_atoms_to_display = list_of_atoms
+        list_of_atoms_to_display.sort()
+        appl_constr=f'Atoms {list_of_atoms_to_display}'
     else:
         print('Warning! None of the specified atoms have been found.\n'
               'Continue using all available atoms.\n')
         list_of_atoms=oall['atom_no'].unique()
         list_of_elements=oall['element'].unique()
-        appl_constr='none'
+        appl_constr='none' # for print summary
         
 else: 
     print('Warning! None of the specified elements or atoms have been found.\n'
           'Continue using all available elements and atoms.\n')
     list_of_atoms=oall['atom_no'].unique()
     list_of_elements=oall['element'].unique()
-    appl_constr='none'
-    
+    appl_constr='none' # for print summary
 
+###############################################################################
+# get the atomic orbitals (from argparse) 
+# Selected atoms are in the list: list_of_atoms_ao
+
+if args.aorbitals == 'none':
+        constr_for_atoms_set=False  # tell the plot section not to plot the AOs of the selected atom
+        sel_atom_ao='none'          # for print summary
+         
+if atm.match(args.aorbitals):
+    
+    # check if the selected atom is in the data frame oall
+    if list(set(map(int,atm.findall(args.aorbitals))).intersection(oall['atom_no'].unique())):
+        list_of_atoms_ao=list(set(map(int,atm.findall(args.aorbitals))).intersection(
+                         oall['atom_no'].unique()))
+        
+        # check if list matches with constraints of atoms
+        if bool(set(list_of_atoms_ao).intersection(list_of_atoms)): 
+            list_of_atoms_ao=set(list_of_atoms_ao).intersection(list_of_atoms) # take intersection of both lists
+            sel_atom_ao=f'{list_of_atoms_ao}'   # for print summary
+            constr_for_atoms_set=True           # tell the plot section to plot the AOs of the selected atom
+            
+        # check if list matches with constraints of elements
+        # elements must be transformed to atom numbers for comparison
+        if bool(set(list_of_atoms_ao).intersection(oall.loc[oall['element'].isin(list_of_elements),['atom_no']]['atom_no'])):
+            # take intersection of both lists
+            list_of_atoms_ao=set(list_of_atoms_ao).intersection(oall.loc[oall['element'].isin(list_of_elements),['atom_no']]['atom_no']) 
+            # this has to be here again, to prevent atoms from the element list beeing recognized
+            if bool(set(list_of_atoms_ao).intersection(list_of_atoms)):
+                sel_atom_ao=f'{list_of_atoms_ao}'  # for print summary
+                constr_for_atoms_set=True          # tell the plot section to plot the AOs of the selected atom
+            else:
+                print('Warning! None of the specified atoms have been found.\n'
+                      'No heat map plots of AO contributions of atoms to orbital will be created.\n')
+                sel_atom_ao='none'
+                constr_for_atoms_set=False
+        else:
+            print('Warning! None of the specified atoms have been found.\n'
+                  'No heat map plots of AO contributions of atoms to orbital will be created.\n')
+            sel_atom_ao='none'
+            constr_for_atoms_set=False 
+            
+    else:
+        print('Warning! None of the specified atoms have been found.\n'
+              'No heat map plots of AO contributions of atoms to orbital will be created.\n')
+        sel_atom_ao='none'
+        constr_for_atoms_set=False 
+
+else: 
+    #print('Warning! None of the specified atoms have been found.\n'
+    #      'No heat map plots of AO contributions of atoms to orbital will be created.\n')
+    sel_atom_ao='none'
+    constr_for_atoms_set=False
+     
 # error message if range of orbitals is exceeded
 if orb_start < 0 or orb_end < 0 or orb_end > tot_num_of_orb_a:
     print(f'Warning! Value exceeds range of orbitals: 0...{tot_num_of_orb_a}. Quit\n')
@@ -512,7 +592,6 @@ if orb_start < 0 or orb_end < 0 or orb_end > tot_num_of_orb_a:
 # output section 
 # print summary
 # name of the output file is 'o-analysis.txt'
-    
 file = open('o-analysis.txt','w')  # open file
     
 file.write('==================================================================\n')
@@ -534,6 +613,7 @@ else:
 file.write(' '.join(("Orbital no. of the HOMO   :", str(homo_num)+'\n')))
 file.write(' '.join(("Threshold for printing (%):", str(threshold)+'\n')))
 file.write("Applied constraints       : " +appl_constr.translate({ord(c): None for c in "[]',"})+"\n")
+file.write("Atoms for AO heat maps    : " +sel_atom_ao.translate({ord(c): None for c in "{}[]',"})+"\n")
 file.write('==================================================================\n')
 
 ###############################################################################
@@ -759,172 +839,123 @@ plt.close(fig)
 ###############################################################################
 # heat maps
 
-# warn if contribution is zero and exit, otherwise error messages
-if len(sum_by_at_a[(sum_by_at_a.Cntrb >= threshold)]) == 0:
-    print('Warning! No contributions from atoms above threshold level. Output incomplete! Quit')
-    exit()
+# only if contribution is non-zero
+if len(sum_by_at_a[(sum_by_at_a.Cntrb >= threshold)]) != 0:
 
-# plot of atom contributions in orbitals >= threshold
-sum_by_at_plot_a=sum_by_at_a[(sum_by_at_a.Cntrb >= threshold)].reset_index().drop(columns=['OrbitalEnergy'])
-
-# convert AtomNo to string with leading zero
-sum_by_at_plot_a['AtomNo']=sum_by_at_plot_a['AtomNo'].apply(lambda x: str(x).zfill(2))
-
-# join AtomNo Element to AtomNo-Element
-# otherwise sorting on x-axis is not nice
-sum_by_at_plot_a['Atom'] = sum_by_at_plot_a[['AtomNo','Element']].apply(lambda x: ' '.join(x), axis=1)
-
-# drop 'AtomNo' & 'Element' columns, since no longer needed
-sum_by_at_plot_a=sum_by_at_plot_a.drop(columns=['AtomNo','Element'])
-
-# unstack table
-sum_by_at_plot_a=sum_by_at_plot_a.set_index(['OrbNo','Occupation','Atom']).unstack().fillna(0)
-
-# drop one index level
-sum_by_at_plot_a.columns=sum_by_at_plot_a.columns.droplevel()
-
-# heat map annotations off for large size plots
-if  sum_by_at_plot_a.size > 200:
-    print('Heat map annotations are turned off.\n')
-    heatmap_ano=False # no annotations 
-
-if spin == 1:
-    # more or less same as above
-    if len(sum_by_at_b[(sum_by_at_b.Cntrb >= threshold)]) == 0:
-        print('Warning! No contributions from atoms above threshold level. Reduce threshold! Quit')
-        exit()
+    # plot of atom contributions in orbitals >= threshold
+    sum_by_at_plot_a=sum_by_at_a[(sum_by_at_a.Cntrb >= threshold)].reset_index().drop(columns=['OrbitalEnergy'])
     
-    sum_by_at_plot_b=sum_by_at_b[(sum_by_at_b.Cntrb >= threshold)].reset_index().drop(columns=['OrbitalEnergy'])
-    sum_by_at_plot_b['AtomNo']=sum_by_at_plot_b['AtomNo'].apply(lambda x: str(x).zfill(2))
-    sum_by_at_plot_b['Atom']=sum_by_at_plot_b[['AtomNo','Element']].apply(lambda x: ' '.join(x), axis=1)
-    sum_by_at_plot_b=sum_by_at_plot_b.drop(columns=['AtomNo','Element'])
-    sum_by_at_plot_b=sum_by_at_plot_b.set_index(['OrbNo','Occupation','Atom']).unstack().fillna(0)
-    sum_by_at_plot_b.columns=sum_by_at_plot_b.columns.droplevel()
+    # convert AtomNo to string with leading zero
+    sum_by_at_plot_a['AtomNo']=sum_by_at_plot_a['AtomNo'].apply(lambda x: str(x).zfill(2))
     
-    # plot options for beta orbitals start here:
-    ax=sns.heatmap(data=sum_by_at_plot_b,cmap='hot',linecolor='black',
-       annot=heatmap_ano,fmt='g',xticklabels=True,linewidths=0.5,cbar=False,annot_kws={"size": 4}) 
+    # join AtomNo Element to AtomNo-Element
+    # otherwise sorting on x-axis is not nice
+    sum_by_at_plot_a['Atom'] = sum_by_at_plot_a[['AtomNo','Element']].apply(lambda x: ' '.join(x), axis=1)
+    
+    # drop 'AtomNo' & 'Element' columns, since no longer needed
+    sum_by_at_plot_a=sum_by_at_plot_a.drop(columns=['AtomNo','Element'])
+    
+    # unstack table
+    sum_by_at_plot_a=sum_by_at_plot_a.set_index(['OrbNo','Occupation','Atom']).unstack().fillna(0)
+    
+    # drop one index level
+    sum_by_at_plot_a.columns=sum_by_at_plot_a.columns.droplevel()
+    
+    # heat map annotations off for large size plots
+    if  sum_by_at_plot_a.size > 300:
+        print('Heat map annotations for atom contributions to orbitals are turned off.\n')
+        heatmap_ano=False # no annotations 
+
+    # plot options for (alpha) orbitals start here:
+    ax=sns.heatmap(data=sum_by_at_plot_a,cmap='hot',linecolor='black',
+       annot=heatmap_ano,fmt='g',xticklabels=True,linewidths=0.5,cbar=False,annot_kws={"size": hm_ano_font_size}) 
+    
     ax.invert_yaxis()
-    ax.set_title(f'Atom contributions (>= {threshold}%) to orbitals (beta). The orbital number of the HOMO (alpha) is {homo_num}.\n'
+    ax.set_title(f'Atom contributions (>= {threshold}%) to orbitals'+alpha_str+f'. The orbital number of the HOMO is {homo_num}.\n'
+                 f'Applied constraints: '+appl_constr.translate({ord(c): None for c in "[]',"})+'\n'
                  f'Contributions <= {threshold}% are "0" or "black" in the heat map.')
     ax.set_xlabel('Atom No.')
     ax.set_ylabel('Orbital No.-Occupation')
-
+    
     fig = ax.get_figure()
     plt.xticks(rotation=90) 
     plt.yticks(rotation=0) 
     fig.tight_layout()
-    fig.savefig('a-cntrb-b.png',dpi=300)
+    fig.savefig('a-cntrb-a.png',dpi=300)
     plt.close(fig)
+
+if spin == 1:
+    # more or less same as above
+    if len(sum_by_at_b[(sum_by_at_b.Cntrb >= threshold)]) != 0:
+            
+        sum_by_at_plot_b=sum_by_at_b[(sum_by_at_b.Cntrb >= threshold)].reset_index().drop(columns=['OrbitalEnergy'])
+        sum_by_at_plot_b['AtomNo']=sum_by_at_plot_b['AtomNo'].apply(lambda x: str(x).zfill(2))
+        sum_by_at_plot_b['Atom']=sum_by_at_plot_b[['AtomNo','Element']].apply(lambda x: ' '.join(x), axis=1)
+        sum_by_at_plot_b=sum_by_at_plot_b.drop(columns=['AtomNo','Element'])
+        sum_by_at_plot_b=sum_by_at_plot_b.set_index(['OrbNo','Occupation','Atom']).unstack().fillna(0)
+        sum_by_at_plot_b.columns=sum_by_at_plot_b.columns.droplevel()
+        
+        # plot options for beta orbitals start here:
+        ax=sns.heatmap(data=sum_by_at_plot_b,cmap='hot',linecolor='black',
+           annot=heatmap_ano,fmt='g',xticklabels=True,linewidths=0.5,cbar=False,annot_kws={"size": hm_ano_font_size}) 
+        ax.invert_yaxis()
+        ax.set_title(f'Atom contributions (>= {threshold}%) to orbitals (beta). The orbital number of the HOMO (alpha) is {homo_num}.\n'
+                     f'Applied constraints: '+appl_constr.translate({ord(c): None for c in "[]',"})+'\n'
+                     f'Contributions <= {threshold}% are "0" or "black" in the heat map.')
+        ax.set_xlabel('Atom No.')
+        ax.set_ylabel('Orbital No.-Occupation')
+    
+        fig = ax.get_figure()
+        plt.xticks(rotation=90) 
+        plt.yticks(rotation=0) 
+        fig.tight_layout()
+        fig.savefig('a-cntrb-b.png',dpi=300)
+        plt.close(fig)
  
-# plot options for (alpha) orbitals start here:
-ax=sns.heatmap(data=sum_by_at_plot_a,cmap='hot',linecolor='black',
-   annot=heatmap_ano,fmt='g',xticklabels=True,linewidths=0.5,cbar=False,annot_kws={"size": 4}) 
-
-ax.invert_yaxis()
-ax.set_title(f'Atom contributions (>= {threshold}%) to orbitals'+alpha_str+f'. The orbital number of the HOMO is {homo_num}.\n'
-             f'Contributions <= {threshold}% are "0" or "black" in the heat map.')
-ax.set_xlabel('Atom No.')
-ax.set_ylabel('Orbital No.-Occupation')
-
-fig = ax.get_figure()
-plt.xticks(rotation=90) 
-plt.yticks(rotation=0) 
-fig.tight_layout()
-fig.savefig('a-cntrb-a.png',dpi=300)
-plt.close(fig)
-
 ###############################################################################
 # heat maps for AOs in orbitals
+# 
+#ao_in_orb_plot_a=ao_in_orb_a.reset_index().drop(columns=['Orb'])
+#ao_in_orb_plot_a=ao_in_orb_plot_a[(ao_in_orb_plot_a.Cntrb >= threshold) & (ao_in_orb_plot_a.AtomNo.isin(list_of_atoms_ao))]
+#print(ao_in_orb_plot_a)
 
-# only when the -c parameter with atoms is given
 if constr_for_atoms_set == True:
     
-    # if the data frame (threshold) is empty then exit (maybe not necessary here)
-    if len(ao_in_orb_a[(ao_in_orb_a.Cntrb >= threshold)]) == 0:
-        print('Warning! No contributions from AOs above threshold level. Output incomplete! Quit')
-        exit()
+    ao_in_orb_plot_a=ao_in_orb_a.reset_index().drop(columns=['Orb'])
+    # only atoms with  contribution >= threshold and from list 'list_of_atoms_ao' are in the data frame ao_in_orb_plot_a
+    ao_in_orb_plot_a=ao_in_orb_plot_a[(ao_in_orb_plot_a.Cntrb >= threshold) & (ao_in_orb_plot_a.AtomNo.isin(list_of_atoms_ao))]
     
-    ao_in_orb_plot_a=ao_in_orb_a[(ao_in_orb_a.Cntrb >= threshold)].reset_index().drop(columns=['Orb'])
-    
-     # combine the columns Element, AtomNo and OrbOr to one column: ElementAtomNo-OrbOr
-    ao_in_orb_plot_a['AOs'] = ao_in_orb_plot_a[ao_in_orb_plot_a.AtomNo.isin(list_of_atoms)][[
-                              'Element','AtomNo','OrbOr']].apply(lambda row: (row['Element'] 
-                              + str(row['AtomNo']) + '-' + row['OrbOr']), axis=1)
-    
-    # create a plot for every atom in list_of_atoms
-    for atoms in list_of_atoms:
-        # drop some columns
-        hm_ao_in_orb_plot_a = ao_in_orb_plot_a[ao_in_orb_plot_a.AtomNo == atoms].drop(columns=['AtomNo','Element','OrbOr'])
-        # unstack table
-        hm_ao_in_orb_plot_a = hm_ao_in_orb_plot_a.set_index(['OrbNo','Occ','AOs']).unstack().fillna(0)
-        # drop level
-        hm_ao_in_orb_plot_a.columns = hm_ao_in_orb_plot_a.columns.droplevel()
-        
-        # a data frame of a single atom in the list 'list_of_atoms' can be empty
-        # do not plot if the data frame is empty
-        if len(hm_ao_in_orb_plot_a) != 0:
-            
-            # heat map annotations on if turned off before and DataFrame size is < 200
-            if  hm_ao_in_orb_plot_a.size < 200:
-                heatmap_ano=True    # annotations on
-            # create the heatmap
-            ax=sns.heatmap(hm_ao_in_orb_plot_a,cmap='hot',linecolor='black',annot=heatmap_ano,fmt='g',
-                           xticklabels=True,linewidths=0.5,cbar=False,annot_kws={"size": 4}) 
-            
-            # plot options for (alpha) orbitals start here:
-            ax.invert_yaxis()
-            ax.set_title(f'AO contributions (>= {threshold}%) to orbitals'+alpha_str+
-                         f'. The orbital number of the HOMO is {homo_num}.\n'
-                         f'Contributions <= {threshold}% are "0" or "black" in the heat map.')
-            ax.set_xlabel('Atom No.-AO')
-            ax.set_ylabel('Orbital No.-Occupation')
-            
-            fig = ax.get_figure()
-            #plt.xticks(rotation=90) 
-            plt.yticks(rotation=0) 
-            fig.tight_layout()
-            atom_name=hm_ao_in_orb_plot_a.columns[0].split('-')[0] # Element-AtomName for file name
-            fig.savefig('ao-cntrb-'+atom_name+'-a.png',dpi=300)
-            plt.close(fig)
-            
-    # same for beta orbitals
-    if spin == 1:        
-    # if the data frame (threshold) is empty then exit (maybe not necessary here)
-        if len(ao_in_orb_b[(ao_in_orb_b.Cntrb >= threshold)]) == 0:
-            print('Warning! No contributions from AOs above threshold level. Output incomplete! Quit')
-            exit()
-        
-        ao_in_orb_plot_b=ao_in_orb_b[(ao_in_orb_b.Cntrb >= threshold)].reset_index().drop(columns=['Orb'])
-        
-         # combine the columns Element, AtomNo and OrbOr to one column: ElementAtomNo-OrbOr
-        ao_in_orb_plot_b['AOs'] = ao_in_orb_plot_b[ao_in_orb_plot_b.AtomNo.isin(list_of_atoms)][[
+    # if the data frame is empty (atom not in 'list_of_atoms_ao' or contribution below threshold) 
+    if len(ao_in_orb_plot_a) != 0: 
+       
+        # combine the columns Element, AtomNo and OrbOr to one column: ElementAtomNo-OrbOr
+        ao_in_orb_plot_a['AOs'] = ao_in_orb_plot_a[ao_in_orb_plot_a.AtomNo.isin(list_of_atoms_ao)][[
                                   'Element','AtomNo','OrbOr']].apply(lambda row: (row['Element'] 
                                   + str(row['AtomNo']) + '-' + row['OrbOr']), axis=1)
         
-        # create a plot for every atom in list_of_atoms
-        for atoms in list_of_atoms:
+        # create a plot for every atom in list_of_atoms_ao
+        for atoms in list_of_atoms_ao:
             # drop some columns
-            hm_ao_in_orb_plot_b = ao_in_orb_plot_b[ao_in_orb_plot_b.AtomNo == atoms].drop(columns=['AtomNo','Element','OrbOr'])
+            hm_ao_in_orb_plot_a = ao_in_orb_plot_a[ao_in_orb_plot_a.AtomNo == atoms].drop(columns=['AtomNo','Element','OrbOr'])
             # unstack table
-            hm_ao_in_orb_plot_b = hm_ao_in_orb_plot_b.set_index(['OrbNo','Occ','AOs']).unstack().fillna(0)
+            hm_ao_in_orb_plot_a = hm_ao_in_orb_plot_a.set_index(['OrbNo','Occ','AOs']).unstack().fillna(0)
             # drop level
-            hm_ao_in_orb_plot_b.columns = hm_ao_in_orb_plot_b.columns.droplevel()
+            hm_ao_in_orb_plot_a.columns = hm_ao_in_orb_plot_a.columns.droplevel()
             
-            # a data frame of a single atom in the list 'list_of_atoms' can be empty
+            # a data frame of a single atom in the list 'list_of_atoms_ao' can be empty
             # do not plot if the data frame is empty
-            if len(hm_ao_in_orb_plot_b) != 0:
+            if len(hm_ao_in_orb_plot_a) != 0:
                 
                 # heat map annotations on if turned off before and DataFrame size is < 200
-                if  hm_ao_in_orb_plot_b.size < 200:
+                if  hm_ao_in_orb_plot_a.size < 300:
                     heatmap_ano=True    # annotations on
                 # create the heatmap
-                ax=sns.heatmap(hm_ao_in_orb_plot_b,cmap='hot',linecolor='black',annot=heatmap_ano,fmt='g',
-                               xticklabels=True,linewidths=0.5,cbar=False,annot_kws={"size": 4}) 
+                ax=sns.heatmap(hm_ao_in_orb_plot_a,cmap='hot',linecolor='black',annot=heatmap_ano,fmt='g',
+                               xticklabels=True,linewidths=0.5,cbar=False,annot_kws={"size": hm_ano_font_size}) 
                 
-                # plot options for (beta) orbitals start here:
+                # plot options for (alpha) orbitals start here:
                 ax.invert_yaxis()
-                ax.set_title(f'AO contributions (>= {threshold}%) to orbitals (beta)'
+                ax.set_title(f'AO contributions (>= {threshold}%) to orbitals'+alpha_str+
                              f'. The orbital number of the HOMO is {homo_num}.\n'
                              f'Contributions <= {threshold}% are "0" or "black" in the heat map.')
                 ax.set_xlabel('Atom No.-AO')
@@ -934,6 +965,56 @@ if constr_for_atoms_set == True:
                 #plt.xticks(rotation=90) 
                 plt.yticks(rotation=0) 
                 fig.tight_layout()
-                atom_name=hm_ao_in_orb_plot_b.columns[0].split('-')[0] # Element-AtomName for file name
-                fig.savefig('ao-cntrb-'+atom_name+'-b.png',dpi=300)
+                atom_name=hm_ao_in_orb_plot_a.columns[0].split('-')[0] # Element-AtomName for file name
+                fig.savefig('ao-cntrb-'+atom_name+'-a.png',dpi=300)
                 plt.close(fig)
+            
+    # same for beta orbitals
+    if spin == 1:        
+        
+        ao_in_orb_plot_b=ao_in_orb_b.reset_index().drop(columns=['Orb'])
+        ao_in_orb_plot_b=ao_in_orb_plot_b[(ao_in_orb_plot_b.Cntrb >= threshold) & (ao_in_orb_plot_b.AtomNo.isin(list_of_atoms_ao))]
+    
+        # if the data frame is empty (atom not in 'list_of_atoms_ao' or contribution below threshold) 
+        if len(ao_in_orb_plot_b) != 0:
+        
+            # combine the columns Element, AtomNo and OrbOr to one column: ElementAtomNo-OrbOr
+            ao_in_orb_plot_b['AOs'] = ao_in_orb_plot_b[ao_in_orb_plot_b.AtomNo.isin(list_of_atoms_ao)][[
+                                      'Element','AtomNo','OrbOr']].apply(lambda row: (row['Element'] 
+                                      + str(row['AtomNo']) + '-' + row['OrbOr']), axis=1)
+            
+            # create a plot for every atom in list_of_atoms_ao
+            for atoms in list_of_atoms_ao:
+                # drop some columns
+                hm_ao_in_orb_plot_b = ao_in_orb_plot_b[ao_in_orb_plot_b.AtomNo == atoms].drop(columns=['AtomNo','Element','OrbOr'])
+                # unstack table
+                hm_ao_in_orb_plot_b = hm_ao_in_orb_plot_b.set_index(['OrbNo','Occ','AOs']).unstack().fillna(0)
+                # drop level
+                hm_ao_in_orb_plot_b.columns = hm_ao_in_orb_plot_b.columns.droplevel()
+                
+                # a data frame of a single atom in the list 'list_of_atoms_ao' can be empty
+                # do not plot if the data frame is empty
+                if len(hm_ao_in_orb_plot_b) != 0:
+                    
+                    # heat map annotations on if turned off before and DataFrame size is < 300
+                    if  hm_ao_in_orb_plot_b.size < 300:
+                        heatmap_ano=True    # annotations on
+                    # create the heatmap
+                    ax=sns.heatmap(hm_ao_in_orb_plot_b,cmap='hot',linecolor='black',annot=heatmap_ano,fmt='g',
+                                   xticklabels=True,linewidths=0.5,cbar=False,annot_kws={"size": hm_ano_font_size}) 
+                    
+                    # plot options for (beta) orbitals start here:
+                    ax.invert_yaxis()
+                    ax.set_title(f'AO contributions (>= {threshold}%) to orbitals (beta)'
+                                 f'. The orbital number of the HOMO is {homo_num}.\n'
+                                 f'Contributions <= {threshold}% are "0" or "black" in the heat map.')
+                    ax.set_xlabel('Atom No.-AO')
+                    ax.set_ylabel('Orbital No.-Occupation')
+                    
+                    fig = ax.get_figure()
+                    #plt.xticks(rotation=90) 
+                    plt.yticks(rotation=0) 
+                    fig.tight_layout()
+                    atom_name=hm_ao_in_orb_plot_b.columns[0].split('-')[0] # Element-AtomName for file name
+                    fig.savefig('ao-cntrb-'+atom_name+'-b.png',dpi=300)
+                    plt.close(fig)
