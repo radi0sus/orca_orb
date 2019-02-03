@@ -115,7 +115,7 @@ AOs in orbital plots (-a, --aorbitals)
 --------------------------------------
 The `-a` parameter with atom (numbers) as additional argument(s) creates the AOs in orbitals heat maps. 
 If constraints are operative they might interfere with atoms given after `-a`. So if carbon atoms are excluded
-from the analysis, a heat map of the AOs of carbon atom 5 `-a5` will not be created. Threshold is effective 
+from the analysis, a heat map of the AOs of carbon atom 5 (`-a5`) will not be created. Threshold is effective 
 as well. See the 'Heat map(s)' section for more details.
 In case of spin unrestricted calculations respective plots for alpha (...-a.png) and beta (...-b.png) 
 orbitals will be created. 
@@ -161,7 +161,7 @@ All orbitals with contributions from all elements (or all atoms) >= 4.2% will be
 All orbitals with contributions from all elements (or all atoms) >= 5% will be analyzed. 
 Furthermore plots of the AOs of atom 0 and 1 in all orbitals will be created:
     
-    orca_orb.py -t4.2 -a0,1 my-calc.out
+    orca_orb.py -t5 -a0,1 my-calc.out
     
  
 Have fun!
