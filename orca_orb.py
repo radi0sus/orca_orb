@@ -14,7 +14,7 @@ Usage:
     
     (python) orca_orb.py -options ORCA.out
 
-Options are `-t`, `-o`, `-c`, -`ncsv` (see below).
+Options are `-t`, `-o`, `-c`, `-a`, -`ncsv` (see below).
 
 
 Naming conventions
@@ -160,8 +160,8 @@ All orbitals with contributions from all elements (or all atoms) >= 4.2% will be
     
     orca_orb.py -t5 my-calc.out
     
-All orbitals with contributions from all elements (or all atoms) >= 5% will be analyzed. 
-Furthermore plots of the AOs of atom 0 and 1 in all orbitals will be created:
+All orbitals with contributions from all elements (or all atoms) >= 5% will be analyzed. Furthermore 
+plots of the contributions from AOs of atom 0 and 1 in all orbitals will be created:
     
     orca_orb.py -t5 -a0,1 my-calc.out
     
@@ -915,9 +915,6 @@ if spin == 1:
 ###############################################################################
 # heat maps for AOs in orbitals
 # 
-#ao_in_orb_plot_a=ao_in_orb_a.reset_index().drop(columns=['Orb'])
-#ao_in_orb_plot_a=ao_in_orb_plot_a[(ao_in_orb_plot_a.Cntrb >= threshold) & (ao_in_orb_plot_a.AtomNo.isin(list_of_atoms_ao))]
-#print(ao_in_orb_plot_a)
 
 if constr_for_atoms_set == True:
     
