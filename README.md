@@ -12,7 +12,7 @@ Usage:
     
     (python) orca_orb.py -options ORCA.out
 
-Options are `-t`, `-o`, `-c`, -`ncsv` (see below).
+Options are `-t`, `-o`, `-c`, `-a`, -`ncsv` (see below).
 
 
 Naming conventions
@@ -158,8 +158,8 @@ All orbitals with contributions from all elements (or all atoms) >= 4.2% will be
     
     orca_orb.py -t5 my-calc.out
     
-All orbitals with contributions from all elements (or all atoms) >= 5% will be analyzed. 
-Furthermore plots of the AOs of atom 0 and 1 in all orbitals will be created:
+All orbitals with contributions from all elements (or all atoms) >= 5% will be analyzed. Furthermore 
+plots of the contributions from AOs of atom 0 and 1 in all orbitals will be created:
     
     orca_orb.py -t5 -a0,1 my-calc.out
     
