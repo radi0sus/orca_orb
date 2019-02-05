@@ -54,6 +54,8 @@ The bar plot `el-cntrb-a.png` visualizes the contribution (in %) of elements to 
 threshold or constraints are not valid for this plot. In case of spin unrestricted calculations 
 respective plots for alpha (...-a.png) and beta (...-b.png) orbitals will be created.
 
+Restarting the program deletes all plots.
+
 
 Heat map(s)
 -----------
@@ -71,6 +73,8 @@ for a selected atom might not be created if the contribution of the atom (or the
 below a given threshold in the selected orbital range.
 In case of spin unrestricted calculations respective plots for alpha (...-a.png) and beta (...-b.png) 
 orbitals will be created. 
+
+Restarting the program deletes all plots.
 
 
 Orbital range (-o, --orbitals)
@@ -136,13 +140,20 @@ In a first step all information listed under 'LOEWDIN REDUCED ORBITAL POPULATION
 and written to a large table. The naming scheme is `orca.out.csv`. In subsequent analyses the program
 uses this file which makes analyses much faster. For creating a new CSV file, the option `-ncsv` can be used.
 
+If you restart a calculation with different parameters you should always use the `-ncsv` option, otherwise
+the program uses a previous `orca.out.csv` which does not agree with the result of the recent calculation.
+
 
 Known issues
 ------------
 The plot section crashes without notice if a large number of orbitals (~1000) is processed. Plot artifacts
 may occur at even lower numbers of orbitals. The text out is not affected.
 
+The program favor an existing `orca.out.csv` over creating a new one. Besides filenames the program
+does not check whether the recent ORCA output matches the CSV file. Using the `-ncsv` option (forces the 
+program to create a new CSV file) solves the issue.
 
+                                                                                              
 Example inputs
 --------------
 Threshold and constraints are not valid for the first (two) tables (element contributions to orbitals)
