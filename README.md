@@ -167,7 +167,7 @@ Orbitals from 0 to 10 with contributions of atoms 1 & 3 >= 10% will be analyzed:
     
 All orbitals with contributions from all elements (or all atoms) >= 4.2% will be analyzed:
     
-    orca_orb.py -t5 my-calc.out
+    orca_orb.py -t4.2 my-calc.out
     
 All orbitals with contributions from all elements (or all atoms) >= 5% will be analyzed. Furthermore 
 plots of the contributions from AOs of atom 0 and 1 in all orbitals will be created:
@@ -176,6 +176,3 @@ plots of the contributions from AOs of atom 0 and 1 in all orbitals will be crea
     
  
 Have fun!
-
-
-#### Check https://github.com/radi0sus for updates.
