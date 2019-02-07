@@ -54,7 +54,7 @@ respective plots for alpha (...-a.png) and beta (...-b.png) orbitals will be cre
 
 Restarting the program deletes all plots. Example:
 
-![el-cntrb-a](https://github.com/radi0sus/orca_orb/blob/master/example/el-cntrb-a.png =150x100)
+![el-cntrb-a](https://github.com/radi0sus/orca_orb/blob/master/example/el-cntrb-a.png)
 
 Heat map(s)
 -----------
