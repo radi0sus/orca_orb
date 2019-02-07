@@ -73,7 +73,9 @@ All contribution below the threshold or zero contributions are '0' or have a bla
 for a selected atom might not be created if the contribution of the atom (or the respective AOs) is 
 below a given threshold in the selected orbital range.
 In case of spin unrestricted calculations respective plots for alpha (...-a.png) and beta (...-b.png) 
-orbitals will be created. 
+orbitals will be created. Example:
+
+![ao-cntrb-a](https://github.com/radi0sus/orca_orb/blob/master/example/ao-cntrb-Fe0-a.png)
 
 Restarting the program deletes all plots.
 
