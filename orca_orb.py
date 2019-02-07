@@ -370,7 +370,7 @@ if ops.path.isfile(args.filename+'.csv') == True:
     else:
         old_csv=0
         
-print('\nReading orbitals from file. Please be patient.\n') 
+print('\nReading orbitals from file.\n') 
 
 # no csv file with orbitals = make new one
 if old_csv == 0: 
@@ -463,17 +463,17 @@ atm = re.compile('[\d]+')               # regex for atoms: 0, 1, 2, ...
 if args.orbitals == 'all':   
     orb_start = 0
     orb_end = tot_num_of_orb_a
-    print(f'Analyzing all orbitals ({orb_start}...{orb_end}). Please be patient.\n')
+    print(f'Analyzing all orbitals ({orb_start}...{orb_end}).\n')
     
 elif args.orbitals == 'HOMO' or args.orbitals == 'h' or args.orbitals == 'homo':  
     orb_start = homo_num
     orb_end = homo_num
-    print(f'Analyzing HOMO. Orbital {homo_num}. Please be patient.\n')
+    print(f'Analyzing HOMO. Orbital {homo_num}.\n')
     
 elif args.orbitals.isdigit():  
     orb_start = int(args.orbitals)
     orb_end = int(args.orbitals)
-    print(f'Analyzing orbital {args.orbitals}. Please be patient.\n')
+    print(f'Analyzing orbital {args.orbitals}.\n')
     
 elif orbrange.match(args.orbitals):    
     orb_start = int(orbrange.findall(args.orbitals)[0])
@@ -483,12 +483,12 @@ elif orbrange.match(args.orbitals):
         print('Warning! Start orbital > Last orbital. Quit\n')
         exit()
         
-    print(f'Analyzing orbitals {orb_start}...{orb_end}. Please be patient.\n')
+    print(f'Analyzing orbitals {orb_start}...{orb_end}.\n')
     
 elif orbrange_homo.match(args.orbitals):    
     orb_start = homo_num - int(orbrange_homo.findall(args.orbitals)[0])
     orb_end = homo_num + int(orbrange_homo.findall(args.orbitals)[0])
-    print(f'Analyzing orbitals {orb_start}...{orb_end}. Please be patient.\n')
+    print(f'Analyzing orbitals {orb_start}...{orb_end}.\n')
     
 else:
     print('Warning! Malformed parameter. Check your input. Quit\n')
@@ -767,7 +767,7 @@ file.close() # close file
 # plot of atom contributions in orbitals >= threshold
 # a-cntrb-a.png & a-cntrb-b.png (if open shell)
 
-print('Preparing plots. Please be patient.\n')
+print('Preparing plots.\n')
 
 # unstack table
 sum_by_el_plot_a=sum_by_el_a.reset_index().drop(columns=['OrbitalEnergy']).set_index(
