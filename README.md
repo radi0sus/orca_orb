@@ -52,9 +52,9 @@ The bar plot `el-cntrb-a.png` visualizes the contribution (in %) of elements to 
 threshold or constraints are not valid for this plot. In case of spin unrestricted calculations 
 respective plots for alpha (...-a.png) and beta (...-b.png) orbitals will be created.
 
-Restarting the program deletes all plots.
+Restarting the program deletes all plots. Example:
 
-![alt text](https://github.com/radi0sus/orca_orb/blob/master/example/el-cntrb-a.png)
+![el-cntrb-a](https://github.com/radi0sus/orca_orb/blob/master/example/el-cntrb-a.png)
 
 Heat map(s)
 -----------
@@ -62,7 +62,9 @@ The heat map `a-cntrb-a.png` shows the contribution (in %) of atoms to orbitals.
 if the size of the heat map is not to large. Otherwise different colors indicate high or low 
 contributions. All contribution below the threshold or zero contributions are '0' or have a black color.
 In case of spin unrestricted calculations respective plots for alpha (...-a.png) and beta (...-b.png) 
-orbitals will be created.
+orbitals will be created. Example:
+
+![a-cntrb-a](https://github.com/radi0sus/orca_orb/blob/master/example/a-cntrb-a.png)
 
 The heat map `ao-cntrb-Element/Atom-a.png` shows the contribution (in %) of the atomic orbitals (s, p, d, f) 
 of a specific atom in a range of orbitals. The heat map will be created if the `-a` parameter is invoked with 
