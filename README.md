@@ -36,6 +36,7 @@ Output
 atoms (0, 1, 2 as they appear in the input) and AOs (s, p, d, f) to orbitals listed under 
 'LOEWDIN REDUCED ORBITAL POPULATIONS PER MO'. In case of spin unrestricted calculations 
 contributions to alpha and beta orbitals are listed separately. All contributions are given in '%'.
+[Example](https://github.com/radi0sus/orca_orb/blob/master/example/o-analysis.txt).
 
 
 Threshold (-t, --threshold)
